@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <!-- Тег meta для указания кодировки -->
+    <meta charset="utf-8">
+    <script src="old/underscore-min.js"></script>
+    <script src="old/jquery-2.2.2.min.js"></script>
+    <script src="old/data.js"></script>
+    <script src="pagination.js"></script>
+    <script src="kokinTable.js"></script>
+    <script>
+        $(document).ready(function() {
+            kokinTable.setDataTemplate(checkboxes);
+            kokinTable.setData(data);
+            kokinTable.setItemsPerPage(10);
+            kokinTable.init('table', 'manage');
+
+            $('#tronpage').on('change', function () {
+                kokinTable.setItemsPerPage($('#tronpage').val());
+                kokinTable.buildTable();
+            });
+        });
+    </script>
+</head>
+
+<body>
+<select name='selectmylove' id='tronpage'>
+    <option value="0">количество строк на странице</option>
+    <option value="10">10</option>
+    <option value="15">15</option>
+    <option selected value="20">20</option>
+    <option value="50">50</option>
+</select>
+<button id='createTable' onclick="kokinTable.buildTable()" style='margin:5px 15px; padding:5px;'>GENERATE!</button>
+<button id='deleteButton' onclick="kokinTable.buildTable(true)" style='margin:5px 15px; padding:5px;'>Delete</button>
+<button id='checkAll' style='margin:5px 15px; padding:5px;'>Check all</button>
+<button id='uncheckAll' style='margin:5px 15px; padding:5px;'>Uncheck all</button>
+
+<div id="manage"></div>
+<table id="table" width="80%" cellpadding="0" cellspacing="0" border="1"></table>
+
+
+
+</body>
+
+</html>
