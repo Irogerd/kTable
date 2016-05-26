@@ -5,12 +5,12 @@ var renderPagination = (function (GLOB) {
             tBody = table.tBodies[0],
             pConfig = {
                 toStart: "В начало",
-                toPrev: "[[",
+                toPrev: "&lt&lt",
                 toNext: "]]",
                 toEnd: "В конец",
                 linkPerPage: entryPerPage,
                 linkTag: "span",
-                template: "<span>Page: %p from %c (rows %r)</span><span>%n</span>",
+                template: "<span>Страница: %p из %c (строк %r)</span><span>%n</span>",
                 onAfterInit: undefined,
                 onNavClick: undefined
             },

@@ -1,11 +1,16 @@
 "use strict";
 
+// TODO: стили, дописать документацию, выкинуть все из old, написать README.md
+// TODO: Установить node.js, установить bower, добавить зависимости от underscore
+// FIXME: переключения на след. и пред. страницы
+
 var kokinTable = (function () {
     var _data = [];
     var _template = [];
     var _checkedCBX = 0;
     var _tableElement, _managePanel;
     var _itemsPerPage = 0;
+    var _customFunc = [];
 
     /**
      * Регистрирует событие для динамически созданных элементов заданного класса
@@ -46,8 +51,13 @@ var kokinTable = (function () {
             });
             data[index].hidden = +this.checked;
         });
+
         addEventListenerToClass('click', '.sortAZ', sortData, false);
         addEventListenerToClass('click', '.sortZA', sortData, true);
+        addEventListenerToClass('click', '.checkAll', check, true);
+        addEventListenerToClass('click', '.uncheckAll', check, false);
+        //addEventListenerToClass('click', '.customButton', call);
+
     };
 
 
@@ -62,6 +72,28 @@ var kokinTable = (function () {
         if (reverse)
             _data.reverse();
         renderTable();
+    };
+
+    /**
+     * Отмечает все чекбоксы
+     */
+    var check = function (flag) {
+
+        var elements = document.querySelectorAll('.cbx-table-delete');
+        Array.prototype.forEach.call(elements, function (el) {
+            el.checked = flag;
+            if (flag)
+                data[$(el).attr('id').split('-')[1]].hidden = 1;
+            else
+                data[$(el).attr('id').split('-')[1]].hidden = 0;
+        });
+    };
+
+    /**
+     * Вызывает кастомную функцию по клику на кнопку
+     */
+    var call = function () {
+        _customFunc[this.id.split("-")[1]]['func']();
     };
 
     /**
@@ -80,7 +112,7 @@ var kokinTable = (function () {
                 tableContent += "<td>" + _template[el.id]['title'] + buttonSortAZ + buttonSortZA + "</td>";
             }
         });
-        tableContent += "<td>&nbsp;</td>";
+        tableContent += "<td>&nbsp;</td><td>&nbsp;</td>";
         _tableElement.innerHTML += "<thead><tr>" + tableContent + "</tr></thead>";
     };
 
@@ -100,10 +132,18 @@ var kokinTable = (function () {
                 // cElem - Элемент из массива _template
                 _.forEach(_template, function (cElem) {
                     if (cElem['isChecked'] == 1)
-                        tableContent += "<td>" + dElem[cElem['assignedWith']] + "</td>";
+                        tableContent += "<td class='" + cElem['assignedWith'] + "'>" + dElem[cElem['assignedWith']] + "</td>";
                 });
-                var trCBX = "<label><input type='checkbox' class='cbx-table-delete' id='cbxDel-" + dElem['id'] + "'></label>"
-                tableContent += "<td>" + trCBX + "</td>";
+                var trCBX = "<label><input type='checkbox' class='cbx-table-delete' id='cbxDel-" + dElem['id'] + "'></label>";
+
+                var customButton = "";
+                for (var i = 0; i < _customFunc.length; i++) {
+                    var name = _customFunc[i]['name'];
+                    customButton += "<button class = 'customButton' onclick='(" + _customFunc[i]['func'] + ")(" + dElem['id'] + ")' id='customButton-" + i + "'>" + name + "</button>";
+                }
+
+
+                tableContent += "<td>" + customButton + "</td>" + "<td>" + trCBX + "</td>";
                 tableContent += "</tr>";
             }
         };
@@ -123,8 +163,17 @@ var kokinTable = (function () {
         else
             _tableElement.style.display = 'table';
         redrawTableBody(hideDeleted);
-        _tableElement.innerHTML += "<tfoot><tr><td colspan=" + (_checkedCBX + 1) + "></td></tr></tfoot>";
+        _tableElement.innerHTML += "<tfoot><tr><td colspan=" + (_checkedCBX + 2) + "></td></tr></tfoot>";
         renderPagination(document.getElementById('table'), _itemsPerPage);
+    };
+
+    var changeTableRow = function (id, field, newValue) {
+        var tableRow = document.getElementById("row-" + id);
+        var elements = tableRow.getElementsByClassName(field);
+        if (elements.length != 1)
+            return;
+        elements[0].innerHTML = newValue;
+
     };
 
     // Область видимости, доступная пользователю
@@ -158,6 +207,21 @@ var kokinTable = (function () {
          */
         setData: function (data) {
             _data = data;
+            for (var i = 0; i < _data.length; i++) {
+                _data[i]["hidden"] = 0;
+            }
+        },
+
+        changeRow: function (id, field, newValue) {
+            _data[id][field] = newValue;
+            changeTableRow(id, field, newValue);
+        },
+        /**
+         * Устанавливает массив функций для кастомных кнопок
+         * @param cf масив объектов {nameOfButton, function(){}}
+         */
+        setCustomFunctions: function (cf) {
+            _customFunc = cf;
         },
 
         /**
