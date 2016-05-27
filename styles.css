@@ -72,17 +72,18 @@
     Стиль кнопок отметить все, снять выделенные
 */
 .checkAll, .uncheckAll {
-    cursor:pointer;
+    cursor: pointer;
 }
 
 /*
     Стиль кастомных кнопок
 */
 .customButton {
-    cursor:pointer;
-    margin-left:2px;
+    cursor: pointer;
+    margin-left: 2px;
     margin-right: 2px;
 }
+
 /*
     Стиль заголовка таблицы общий
 */
@@ -134,6 +135,14 @@
     margin-left: 3px;
     background-color: rgb(43, 153, 91);
     color: black;
+}
+
+/*
+    Стиль подсвечивания выбранных строк
+*/
+
+.highlighted > td {
+    background: rgb(159, 206, 168);
 }
 
 /*

@@ -5,7 +5,6 @@
     <!-- Тег meta для указания кодировки -->
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="styles.css">
-    <script src="old/underscore-min.js"></script>
     <script src="old/jquery-2.2.2.min.js"></script>
     <script src="old/data.js"></script>
     <script src="customFunctions.js"></script>
@@ -18,17 +17,15 @@
             kokinTable.setCustomFunctions(customFunc);
             kokinTable.setItemsPerPage($('#tronpage').val());
             kokinTable.init('table', 'manage');
-
             $('#tronpage').on('change', function () {
                 kokinTable.setItemsPerPage($('#tronpage').val());
-                kokinTable.buildTable();
             });
         });
     </script>
 </head>
 
 <body>
-<select name='selectmylove' class='select' id='tronpage'>
+<select name='selectPerPage' class='select' id='tronpage'>
     <option value="0">количество строк на странице</option>
     <option value="5">5</option>
     <option value="10">10</option>
@@ -36,8 +33,12 @@
     <option selected value="20">20</option>
     <option value="50">50</option>
 </select>
-<button id='createTable' class='createTable' onclick="kokinTable.buildTable()" style='margin:5px 15px; padding:5px;'>GENERATE!</button>
-<button id='deleteButton' class='deleteButton' onclick="kokinTable.buildTable(true)" style='margin:5px 15px; padding:5px;'>Delete</button>
+<button id='createTable' class='createTable' onclick="kokinTable.buildTable()" style='margin:5px 15px; padding:5px;'>
+    GENERATE!
+</button>
+<button id='deleteButton' class='deleteButton' onclick="kokinTable.buildTable(true)"
+        style='margin:5px 15px; padding:5px;'>Delete
+</button>
 <button id='checkAll' class='checkAll' style='margin:5px 15px; padding:5px;'>Check all on page</button>
 <button id='uncheckAll' class='uncheckAll' style='margin:5px 15px; padding:5px;'>Uncheck all on page</button>
 

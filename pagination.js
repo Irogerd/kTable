@@ -80,9 +80,13 @@ var renderPagination = (function (GLOB) {
          * @param {Number} offset - кол-во отображаемых строк
          */
         function renderTableState(start, offset) {
-            var startRow = start * offset,
-                endRow = Math.min(trRefs.length, startRow + offset),
-                i;
+            offset = +offset;
+            var startRow = start * offset, i, endRow;
+
+            if (trRefs.length < startRow + offset)
+                endRow = trRefs.length;
+            else
+                endRow = startRow + offset;
             // Очищаем tBody от потомков (tBody.innerHTML - не сработает в IE)
             while (tBody.firstChild) {
                 tBody.removeChild(tBody.firstChild);
