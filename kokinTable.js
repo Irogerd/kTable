@@ -1,8 +1,8 @@
 "use strict";
 
-// TODO: стили, дописать документацию, выкинуть все из old, написать README.md
-// TODO: Установить node.js, установить bower, добавить зависимости от underscore
-// FIXME: переключения на след. и пред. страницы
+// TODO: написать README.md
+// TODO: Избавиться от underscore
+// TODO: если выбрать 5 элементов на страничку, а потом перейти на вторую страничку, то элементов становится гораздо больше
 
 var kokinTable = (function () {
     var _data = [];
@@ -16,8 +16,8 @@ var kokinTable = (function () {
      * Регистрирует событие для динамически созданных элементов заданного класса
      * @param event Тип события
      * @param classname Имя класса
-     * @param callback РЕАКЦИЯ
-     * @param args Параметры РЕАКЦИИ
+     * @param callback действие на событие
+     * @param args Параметры действия на событие
      */
     var addEventListenerToClass = function (event, classname, callback, params) {
         classname = classname.substr(1);
@@ -45,7 +45,7 @@ var kokinTable = (function () {
 
     var initEvents = function () {
         addEventListenerToClass('change', '.cbx-table-delete', function () {
-            var id = $(this).attr('id').split('-')[1], index;
+            var id = this.getAttribute('id').split('-')[1], index;
             index = _.findIndex(data, function (item) {
                 return item.id == id;
             });
@@ -56,9 +56,11 @@ var kokinTable = (function () {
         addEventListenerToClass('click', '.sortZA', sortData, true);
         addEventListenerToClass('click', '.checkAll', check, true);
         addEventListenerToClass('click', '.uncheckAll', check, false);
-        //addEventListenerToClass('click', '.customButton', call);
-
     };
+
+    /**
+     * Функции forEach и SortBy
+     */
 
 
     /**
@@ -78,46 +80,45 @@ var kokinTable = (function () {
      * Отмечает все чекбоксы
      */
     var check = function (flag) {
-
         var elements = document.querySelectorAll('.cbx-table-delete');
         Array.prototype.forEach.call(elements, function (el) {
             el.checked = flag;
-            if (flag)
-                data[$(el).attr('id').split('-')[1]].hidden = 1;
-            else
-                data[$(el).attr('id').split('-')[1]].hidden = 0;
+            var id = el.getAttribute('id').split('-')[1], index;
+            for(var i = 0; i < _data.length; i++)
+            {
+                if(_data[i].id == id)
+                {
+                    _data[i].hidden = +flag;
+                    i = _data.length;
+                }
+            }
         });
     };
-
     /**
-     * Вызывает кастомную функцию по клику на кнопку
-     */
-    var call = function () {
-        _customFunc[this.id.split("-")[1]]['func']();
-    };
-
-    /**
-     *
+     * Отрисовка шапки таблицы
      */
     var redrawTableHeader = function () {
         var tableContent = "";
         var elements = document.querySelectorAll(".cbx-table");
         Array.prototype.forEach.call(elements, function (el, index) {
             _template[el.id]['isChecked'] = 0;
-            if (el.checked) { //возводим флаги у выбранных чекбоксов
+            if (el.checked) {
                 _checkedCBX++;
                 _template[el.id]['isChecked'] = 1;
-                var buttonSortAZ = "<button class = 'sortAZ' id='SortAZ-" + _template[el.id]['assignedWith'] + "'>SortAZ</button>";
-                var buttonSortZA = "<button class = 'sortZA' id='SortZA-" + _template[el.id]['assignedWith'] + "'>SortZA</button>";
-                tableContent += "<td>" + _template[el.id]['title'] + buttonSortAZ + buttonSortZA + "</td>";
+                var buttonSortAZ = "<button class = 'sortAZ' id='SortAZ-" + _template[el.id]['assignedWith'] + "'>A->Z</button>";
+                var buttonSortZA = "<button class = 'sortZA' id='SortZA-" + _template[el.id]['assignedWith'] + "'>Z->A</button>";
+                tableContent += "<td class='tableHead"+_template[el.id]['width']+"'>" + _template[el.id]['title'] + buttonSortAZ + buttonSortZA + "</td>";
             }
         });
-        tableContent += "<td>&nbsp;</td><td>&nbsp;</td>";
+        tableContent += "<td class='tableHead'>&nbsp;</td>";
+        if(_customFunc.length > 0)
+            tableContent += "<td class='tableHead'>&nbsp;</td>"
         _tableElement.innerHTML += "<thead><tr>" + tableContent + "</tr></thead>";
     };
 
     /**
-     *
+     * Отрисовывает тело таблицы
+     * @param hideDeleted boolean скрыть отмеченные удаленными элементы
      */
     var redrawTableBody = function (hideDeleted) {
         var tableContent = "";
@@ -142,9 +143,9 @@ var kokinTable = (function () {
                     customButton += "<button class = 'customButton' onclick='(" + _customFunc[i]['func'] + ")(" + dElem['id'] + ")' id='customButton-" + i + "'>" + name + "</button>";
                 }
 
-
-                tableContent += "<td>" + customButton + "</td>" + "<td>" + trCBX + "</td>";
-                tableContent += "</tr>";
+                if(customButton != "")
+                    tableContent += "<td>" + customButton + "</td>";
+                tableContent += "<td>" + trCBX + "</td>"+"</tr>";
             }
         };
         _.forEach(_data, fillRow);
@@ -152,7 +153,7 @@ var kokinTable = (function () {
     };
 
     /**
-     *
+     * Создание всей таблицы
      */
     var renderTable = function (hideDeleted) {
         _tableElement.innerHTML = "";
@@ -163,10 +164,16 @@ var kokinTable = (function () {
         else
             _tableElement.style.display = 'table';
         redrawTableBody(hideDeleted);
-        _tableElement.innerHTML += "<tfoot><tr><td colspan=" + (_checkedCBX + 2) + "></td></tr></tfoot>";
+        _tableElement.innerHTML += "<tfoot class='tFoot'><tr><td colspan=" + (_checkedCBX + 2) + "></td></tr></tfoot>";
         renderPagination(document.getElementById('table'), _itemsPerPage);
     };
 
+    /**
+     * Изменение данных в строке таблицы
+     * @param id номер строки
+     * @param field поле (столбец) таблицы, в котором нужно менять значение
+     * @param newValue новое значение
+     */
     var changeTableRow = function (id, field, newValue) {
         var tableRow = document.getElementById("row-" + id);
         var elements = tableRow.getElementsByClassName(field);
@@ -194,10 +201,22 @@ var kokinTable = (function () {
             initEvents();
         },
         /**
-         * TODO: Красиво сформулировать, зачем нужен checkboxes из data.js
+         * Задает шаблон данных: столбцы таблицы в виде ассоциативного массива чекбоксов
+         *  {
+         *      checkbox1: {    id: id_чекбокса,
+         *                      title: заголовок столбца (название)
+         *                      assignedWith: с каким полем из массива с данными связан
+         *                      width: ширина столбца (маленький=small, средний=medium, большой=large)
+         *                 },
+         *      checkbox2: {id, title, assignedWith, width },
+         *      ...
+         *  }
          */
         setDataTemplate: function (template) {
             _template = template;
+            for (var i = 0; i < _data.length; i++) {
+                _template[i]["isChecked"] = 0;
+            }
         },
 
         buildTable: renderTable,

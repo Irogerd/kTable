@@ -6,11 +6,11 @@ var renderPagination = (function (GLOB) {
             pConfig = {
                 toStart: "В начало",
                 toPrev: "&lt&lt",
-                toNext: "]]",
+                toNext: "&gt&gt",
                 toEnd: "В конец",
                 linkPerPage: entryPerPage,
                 linkTag: "span",
-                template: "<span>Страница: %p из %c (строк %r)</span><span>%n</span>",
+                template: "<span class='pageInfo'>Страница: %p из %c (всего строк %r)</span><br><span>%n</span>",
                 onAfterInit: undefined,
                 onNavClick: undefined
             },
@@ -50,23 +50,23 @@ var renderPagination = (function (GLOB) {
             // Определяем какому подмножеству принадлежит текущая страница:
             var curSetKey = Math.floor(curPage / pConfig.linkPerPage),
                 template = pConfig.template,
-                pagerHTML = "<" + pConfig.linkTag + " id=\"0\">" + (pConfig.toStart) + "</" + pConfig.linkTag + ">",
+                pagerHTML = "<" + pConfig.linkTag + " class = 'toStart' id=\"0\">" + (pConfig.toStart) + "</" + pConfig.linkTag + ">",
                 setKey = 0,
                 i;
             // Если мы имеем дело с первой страицей кнопку "Предыдущий" не показываем:
             if (curSetKey > 0) {
-                pagerHTML += "<" + pConfig.linkTag + " id=\"" + (linksSet[curSetKey][0] - 1) + "\">" + (pConfig.toPrev) + "</" + pConfig.linkTag + ">";
+                pagerHTML += "<" + pConfig.linkTag + "  class='Prev' id=\"" + (linksSet[curSetKey][0] - 1) + "\">" + (pConfig.toPrev) + "</" + pConfig.linkTag + ">";
             }
             for (i = 0; i < linksSet[curSetKey].length; i += 1) {
                 setKey = linksSet[curSetKey][i];
-                pagerHTML += "<" + pConfig.linkTag + " id=\"" + setKey + "\"" + (setKey === curPage ? " class=\"current\"" : "") + ">" + (setKey + 1) + "</" + pConfig.linkTag + ">";
+                pagerHTML += "<" + pConfig.linkTag + " id=\"" + setKey + "\"" + (setKey === curPage ? " class=\"current\"" : " class=\"numPage\"") + ">" + (setKey + 1) + "</" + pConfig.linkTag + ">";
             }
             // Если мы имеем дело с последней страицей кнопку "Следующий" не показываем:
             if (curSetKey < linksSet.length - 1) {
-                pagerHTML += "<" + pConfig.linkTag + " id=\"" + (linksSet[curSetKey + 1][0]) + "\">" + (pConfig.toNext) + "</" + pConfig.linkTag + ">";
+                pagerHTML += "<" + pConfig.linkTag + " class='Next' id=\"" + (linksSet[curSetKey + 1][0]) + "\">" + (pConfig.toNext) + "</" + pConfig.linkTag + ">";
             }
             // Ссылка "в конец":
-            pagerHTML += "<" + pConfig.linkTag + " id=\"" + (linksCnt - 1) + "\">" + (pConfig.toEnd) + "</" + pConfig.linkTag + ">";
+            pagerHTML += "<" + pConfig.linkTag + " class='toEnd' id=\"" + (linksCnt - 1) + "\">" + (pConfig.toEnd) + "</" + pConfig.linkTag + ">";
             // Обрабатываем шаблон и подменяем весь html-за один раз:
             linksContainer.innerHTML = template.replace(/%n/g, pagerHTML).
             replace(/%p/g, String(curPage + 1)).
