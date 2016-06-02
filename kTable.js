@@ -1,12 +1,20 @@
 "use strict";
 
 // TODO: написать README.md
-// TODO: при нажатии на Generate происходит полная перерисовка таблицы в ее исходное состояние. Все удаленные возвращаются. Это логично?! Вроде, да
+// TODO: почитать: MVC, bootstrap
+// TODO: протестировать во всех актуальных браузерах
+/**
+ * Введение: что заставило написать этот контрол
+ * В основной части диплома: аналитика. Сравнение с аналогами, плюсы и минусы
+ * Заключение: что реализовано, какие плюсы
+ */
 
-var kokinTable = (function () {
+var kTable = (function () {
     var _data = [];
     var _template = [];
+    var _templateLength = 0;
     var _checkedCBX = 0;
+    var _isCbxPanel = false;
     var _tableElement, _managePanel;
     var _itemsPerPage = 0;
     var _customFunc = [];
@@ -33,13 +41,15 @@ var kokinTable = (function () {
 
     var renderControlPanel = function () {
         var template = "";
-        var createCheckBoxes = function (a) {
+        var createCheckBoxes = function (a, key) {
             template += "<p>" +
-                "<label><input type='checkbox' class='cbx-table' id='" + a.id + "' value='" + a.name + "'>"
+                "<label><input type='checkbox' checked  class='cbx-table' id='" + key + "' value='" + a.name + "'>"
                 + a.title + "</label></p>";
         };
-        _.forEach(checkboxes, createCheckBoxes);
+
+        _.forEach(_template, createCheckBoxes);
         _managePanel.innerHTML = template;
+
     };
 
     var initEvents = function () {
@@ -47,9 +57,12 @@ var kokinTable = (function () {
             var id = this.getAttribute('id').split('-')[1];
             for (var i = 0; i < _data.length; i++) {
                 if (_data[i].id == id) {
-                    _data[i].hidden = 1;
+                    _data[i].hidden = +this.checked;
                     i = _data.length;
-                    document.getElementById("row-" + id).className += "highlighted";
+                    if (this.checked)
+                        document.getElementById("row-" + id).className = "highlighted";
+                    else
+                        document.getElementById("row-" + id).className = "nohighlighted";
                 }
             }
         });
@@ -58,6 +71,7 @@ var kokinTable = (function () {
         addEventListenerToClass('click', '.sortZA', sortData, true);
         addEventListenerToClass('click', '.checkAll', check, true);
         addEventListenerToClass('click', '.uncheckAll', check, false);
+        addEventListenerToClass('change', '.cbx-table', remakeTemplate);
     };
 
 
@@ -65,7 +79,6 @@ var kokinTable = (function () {
      * Функции ForEach
      */
     var ArrayProto = Array.prototype, breaker = {};
-    ;
     var _ = function (obj) {
         if (obj instanceof _) return obj;
         if (!(this instanceof _)) return new _(obj);
@@ -183,25 +196,44 @@ var kokinTable = (function () {
                 if (_data[i].id == id) {
                     _data[i].hidden = +flag;
                     i = _data.length;
-                    document.getElementById("row-" + id).className += " highlighted";
+                    if (flag)
+                        document.getElementById("row-" + id).className = "highlighted";
+                    else
+                        document.getElementById("row-" + id).className = "nohighlighted";
+
                 }
             }
         });
     };
+
+    /**
+     * Изменение массива-шаблона в зависимости от взведенных чекбоксов
+     */
+    var remakeTemplate = function () {
+        _isCbxPanel = true;
+        var elements = document.querySelectorAll(".cbx-table");
+        _checkedCBX = 0;
+        Array.prototype.forEach.call(elements, function (el) {
+            _template[el.id]['isChecked'] = 0;
+            if (el.checked) {
+                _checkedCBX++;
+                _template[el.id]['isChecked'] = 1;
+            }
+        });
+    };
+
     /**
      * Отрисовка шапки таблицы
      */
     var redrawTableHeader = function () {
         var tableContent = "";
-        var elements = document.querySelectorAll(".cbx-table");
-        Array.prototype.forEach.call(elements, function (el, index) {
-            _template[el.id]['isChecked'] = 0;
-            if (el.checked) {
-                _checkedCBX++;
-                _template[el.id]['isChecked'] = 1;
-                var buttonSortAZ = "<button class = 'sortAZ' id='SortAZ-" + _template[el.id]['assignedWith'] + "'>A->Z</button>";
-                var buttonSortZA = "<button class = 'sortZA' id='SortZA-" + _template[el.id]['assignedWith'] + "'>Z->A</button>";
-                tableContent += "<td class='tableHead" + _template[el.id]['width'] + "'>" + _template[el.id]['title'] + buttonSortAZ + buttonSortZA + "</td>";
+        if (!_isCbxPanel)
+            _checkedCBX = _templateLength;
+        _.forEach(_template, function (el) {
+            if (el['isChecked'] == 1) {
+                var buttonSortAZ = "<button class = 'sortAZ' id='SortAZ-" + el['assignedWith'] + "'>A->Z</button>";
+                var buttonSortZA = "<button class = 'sortZA' id='SortZA-" + el['assignedWith'] + "'>Z->A</button>";
+                tableContent += "<td class='tableHead" + el['width'] + "'>" + el['title'] + buttonSortAZ + buttonSortZA + "</td>";
             }
         });
         tableContent += "<td class='tableHead'>&nbsp;</td>";
@@ -251,7 +283,7 @@ var kokinTable = (function () {
      */
     var renderTable = function (hideDeleted) {
         _tableElement.innerHTML = "";
-        _checkedCBX = 0;
+        //_checkedCBX = 0;
         redrawTableHeader();
         if (_checkedCBX == 0)
             return (_tableElement.style.display = 'none');
@@ -280,37 +312,56 @@ var kokinTable = (function () {
     // Область видимости, доступная пользователю
     return {
         /**
-         * Отрисовывает данные в таблице с ID == tableID и элементы управления в контейнере с ID == manageID
+         * Отрисовывает данные в таблице с ID == tableID и элементы управления в контейнере с ID == manageDivID
          * В случае, если контейнеров с такими ID не существует, выведет сообщение об ошибке в консоль
+         * init - в случае, если контейнер с чекбоксами для столбцов не существует
+         * initWithManage - если существует
          * @param tableID
          * @param manageDivID
          * @exception UndefinedTableException В случае, когда таблица с ID == tableID не существует
          * @exception UndefinedManageContainerException В случае, когда контейнер с ID == manageID не существует
          * @exception NoDataSourceException В случае, когда не задан источник данных
          */
-        init: function (tableID, manageDivID) {
+        init: function (tableID) {
+            _tableElement = document.getElementById(tableID);
+            if (_tableElement === null)
+                console.error("UndefinedTableException");
+            if (_data === [])
+                console.error("NoDataSourceException");
+            initEvents();
+
+        },
+
+        initWithManage: function (tableID, manageDivID) {
             _tableElement = document.getElementById(tableID);
             _managePanel = document.getElementById(manageDivID);
+            if (_tableElement === null)
+                console.error("UndefinedTableException");
+            if (_managePanel === null)
+                console.error("UndefinedManageContainerException");
+            if (_data === [])
+                console.error("NoDataSourceException");
             renderControlPanel();
             initEvents();
         },
         /**
-         * Задает шаблон данных: столбцы таблицы в виде ассоциативного массива чекбоксов
+         * Задает шаблон данных: столбцы таблицы в виде ассоциативного массива
          *  {
-         *      checkbox1: {    id: id_чекбокса,
-         *                      title: заголовок столбца (название)
+         *      item1:     {    title: заголовок столбца (название)
          *                      assignedWith: с каким полем из массива с данными связан
          *                      width: ширина столбца (маленький=small, средний=medium, большой=large)
          *                 },
-         *      checkbox2: {id, title, assignedWith, width },
+         *      item2: {title, assignedWith, width },
          *      ...
          *  }
          */
+
         setDataTemplate: function (template) {
             _template = template;
-            for (var i = 0; i < _data.length; i++) {
-                _template[i]["isChecked"] = 0;
-            }
+            _.forEach(_template, function (el) {
+                _templateLength++;
+                el['isChecked'] = 1;
+            });
         },
 
         buildTable: renderTable,

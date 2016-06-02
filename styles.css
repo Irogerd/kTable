@@ -137,6 +137,10 @@
     color: black;
 }
 
+.nohighlighted > td {
+    background: rgb(255, 255, 255);
+}
+
 /*
     Стиль подсвечивания выбранных строк
 */

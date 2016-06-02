@@ -18,7 +18,7 @@ var customFunc = [
     {name:"Rename",
         func: function(a) {
             var newName = prompt("Новое имя ", "Петруччо");
-            kokinTable.changeRow(a,"name",newName);
+            kTable.changeRow(a,"name",newName);
         }
     }
 ];

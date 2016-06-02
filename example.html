@@ -9,16 +9,18 @@
     <script src="old/data.js"></script>
     <script src="customFunctions.js"></script>
     <script src="pagination.js"></script>
-    <script src="kokinTable.js"></script>
+    <script src="kTable.js"></script>
     <script>
         $(document).ready(function () {
-            kokinTable.setDataTemplate(checkboxes);
-            kokinTable.setData(data);
-            kokinTable.setCustomFunctions(customFunc);
-            kokinTable.setItemsPerPage($('#tronpage').val());
-            kokinTable.init('table', 'manage');
+            kTable.setDataTemplate(checkboxes);
+            kTable.setData(data);
+            kTable.setCustomFunctions(customFunc);
+            kTable.setItemsPerPage($('#tronpage').val());
+
+            kTable.initWithManage('table', 'cbxPanel');
+            //kTable.init('table');
             $('#tronpage').on('change', function () {
-                kokinTable.setItemsPerPage($('#tronpage').val());
+                kTable.setItemsPerPage($('#tronpage').val());
             });
         });
     </script>
@@ -33,16 +35,16 @@
     <option selected value="20">20</option>
     <option value="50">50</option>
 </select>
-<button id='createTable' class='createTable' onclick="kokinTable.buildTable()" style='margin:5px 15px; padding:5px;'>
+<button id='createTable' class='createTable' onclick="kTable.buildTable()" style='margin:5px 15px; padding:5px;'>
     GENERATE!
 </button>
-<button id='deleteButton' class='deleteButton' onclick="kokinTable.buildTable(true)"
+<button id='deleteButton' class='deleteButton' onclick="kTable.buildTable(true)"
         style='margin:5px 15px; padding:5px;'>Delete
 </button>
 <button id='checkAll' class='checkAll' style='margin:5px 15px; padding:5px;'>Check all on page</button>
 <button id='uncheckAll' class='uncheckAll' style='margin:5px 15px; padding:5px;'>Uncheck all on page</button>
 
-<div id="manage"></div>
+<div id="cbxPanel"></div>
 <table id="table" width="80%" cellpadding="0" cellspacing="0" border="1" style="display:none"></table>
 
 
