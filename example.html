@@ -9,18 +9,18 @@
     <script src="old/data.js"></script>
     <script src="customFunctions.js"></script>
     <script src="pagination.js"></script>
-    <script src="kTable.js"></script>
+    <script src="wonderTable.js"></script>
     <script>
         $(document).ready(function () {
-            kTable.setDataTemplate(checkboxes);
-            kTable.setData(data);
-            kTable.setCustomFunctions(customFunc);
-            kTable.setItemsPerPage($('#tronpage').val());
+            wonderTable.setDataTemplate(checkboxes);
+            wonderTable.setData(data);
+            wonderTable.setCustomFunctions(customFunc);
+            wonderTable.setItemsPerPage($('#tronpage').val());
 
-            kTable.initWithManage('table', 'cbxPanel');
-            //kTable.init('table');
+            wonderTable.initWithManage('table', 'cbxPanel');
+            //wonderTable.init('table');
             $('#tronpage').on('change', function () {
-                kTable.setItemsPerPage($('#tronpage').val());
+                wonderTable.setItemsPerPage($('#tronpage').val());
             });
         });
     </script>
@@ -35,11 +35,11 @@
     <option selected value="20">20</option>
     <option value="50">50</option>
 </select>
-<button id='createTable' class='createTable' onclick="kTable.buildTable()" style='margin:5px 15px; padding:5px;'>
+<button id='createTable' class='createTable' onclick="wonderTable.buildTable()" style='margin:5px 15px; padding:5px;'>
     GENERATE!
 </button>
-<button id='deleteButton' class='deleteButton' onclick="kTable.buildTable(true)"
-        style='margin:5px 15px; padding:5px;'>Delete
+<button id='deleteButton' class='deleteButton' onclick="wonderTable.buildTable(true)"
+        style='margin:5px 15px; padding:5px;'>HIDE
 </button>
 <button id='checkAll' class='checkAll' style='margin:5px 15px; padding:5px;'>Check all on page</button>
 <button id='uncheckAll' class='uncheckAll' style='margin:5px 15px; padding:5px;'>Uncheck all on page</button>

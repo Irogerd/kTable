@@ -1,15 +1,5 @@
 "use strict";
-
-// TODO: написать README.md
-// TODO: почитать: MVC, bootstrap
-// TODO: протестировать во всех актуальных браузерах
-/**
- * Введение: что заставило написать этот контрол
- * В основной части диплома: аналитика. Сравнение с аналогами, плюсы и минусы
- * Заключение: что реализовано, какие плюсы
- */
-
-var kTable = (function () {
+var wonderTable = (function () {
     var _data = [];
     var _template = [];
     var _templateLength = 0;
