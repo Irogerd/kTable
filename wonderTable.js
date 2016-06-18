@@ -171,7 +171,7 @@ var wonderTable = (function () {
         _data = _.sortBy(_data, key[1]);
         if (reverse)
             _data.reverse();
-        renderTable();
+        renderTable(true);
     };
 
     /**
@@ -281,7 +281,7 @@ var wonderTable = (function () {
             _tableElement.style.display = 'table';
         redrawTableBody(hideDeleted);
         _tableElement.innerHTML += "<tfoot class='tFoot'><tr><td colspan=" + (_checkedCBX + 2) + "></td></tr></tfoot>";
-        renderPagination(document.getElementById('table'), _itemsPerPage);
+        renderPagination(_tableElement, _itemsPerPage);
     };
 
     /**
